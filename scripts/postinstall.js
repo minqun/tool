@@ -9,14 +9,14 @@ const DISABLE_OPENCOLLECTIVE = is(env.DISABLE_OPENCOLLECTIVE);
 const SILENT = !!~['silent', 'error', 'warn'].indexOf(env.npm_config_loglevel);
 
 function is(it) {
-    return !!it && it !== '0' && it !== 'false';
+  return !!it && it !== '0' && it !== 'false';
 }
 
 function log(it) {
-    // eslint-disable-next-line no-console,no-control-regex
-    console.log(it);
+  // eslint-disable-next-line no-console,no-control-regex
+  console.log(it);
 }
 
 if (!ADBLOCK && !CI && !DISABLE_OPENCOLLECTIVE && !SILENT) {
-    log('安装完成');
+  log('安装完成');
 }

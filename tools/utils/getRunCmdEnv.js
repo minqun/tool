@@ -1,18 +1,24 @@
 const path = require('path');
 module.exports = function getRunCmdEnv() {
-    const env = {};
-    Object.keys(process.env).forEach(key => {
-        env[key] = process.env[key]
-    });
+  const env = {};
+  Object.keys(process.env).forEach(key => {
+    env[key] = process.env[key];
+  });
 
-    const nodeModulesBinDir = path.join(__dirname, '../../node_modules/.bin')
+  const nodeModulesBinDir = path.join(__dirname, '../../node_modules/.bin');
 
-    Object.entries(env).filter(v => {
-
-        return v.slice(0, 1).pop().toLowerCase() === 'path'
-    }).forEach(v => {
-        const key = v.slice(0, 1).pop();
-        env[key] = env[key] ? `${nodeModulesBinDir}:${env[key]}` : nodeModulesBinDir;
+  Object.entries(env)
+    .filter(v => {
+      return (
+        v
+          .slice(0, 1)
+          .pop()
+          .toLowerCase() === 'path'
+      );
     })
-    return env;
+    .forEach(v => {
+      const key = v.slice(0, 1).pop();
+      env[key] = env[key] ? `${nodeModulesBinDir}:${env[key]}` : nodeModulesBinDir;
+    });
+  return env;
 };
