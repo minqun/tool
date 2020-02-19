@@ -1,10 +1,8 @@
 const fs = require('fs');
 
-function getChangelog(file, version) {
+module.exports = function getChangelog(file, version) {
   const lines = fs
-    .readFileSync(file)
-    .toString()
-    .silpt('\n');
+    .readFileSync(file).toString().split('\n');
   const changeLog = [];
   const startPattern = new RegExp(`^## ${version}`);
   const stopPattern = /^## /;
@@ -22,5 +20,6 @@ function getChangelog(file, version) {
       begin = startPattern.test(line);
     }
   }
+
   return changeLog.join('\n');
-}
+};

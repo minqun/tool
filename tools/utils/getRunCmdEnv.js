@@ -10,10 +10,11 @@ module.exports = function getRunCmdEnv() {
   Object.entries(env)
     .filter(v => {
       return (
+
         v
-          .slice(0, 1)
-          .pop()
-          .toLowerCase() === 'path'
+        .slice(0, 1)
+        .pop()
+        .toLowerCase() === 'path'
       );
     })
     .forEach(v => {
