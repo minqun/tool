@@ -1,9 +1,7 @@
 const runCmd = require('./runCmd');
 const getBabelCommonConfig = require('./getBabelCommonConfig');
 const merge2 = require('merge2');
-const {
-  execSync,
-} = require('child_process');
+const { execSync } = require('child_process');
 const through2 = require('through2');
 const transformLess = require('./transformLess');
 const webpack = require('webpack');
@@ -99,7 +97,7 @@ function compile(modules) {
   const less = gulp
     .src(['components/**/*.less'])
     .pipe(
-      through2.obj(function (file, encoding, next) {
+      through2.obj(function(file, encoding, next) {
         this.push(file.clone());
         if (
           file.path.match(/\/style\/index\.less$/) ||
@@ -132,9 +130,7 @@ function compile(modules) {
 
 function tag() {
   console.log('tag --start--');
-  const {
-    version,
-  } = packageJson;
+  const { version } = packageJson;
   execSync(`git tag ${version}`);
   console.log('tag --end--');
 }
@@ -156,9 +152,7 @@ function githubRelease(done) {
   });
 
   const date = new Date();
-  const {
-    version,
-  } = packageJson;
+  const { version } = packageJson;
 
   const changelogText = getChangelog(changelogFiles[0], version);
   const changelog = [
@@ -202,7 +196,7 @@ gulp.task(
       }
       return done();
     });
-  })
+  }),
 );
 
 function publish(tagString, done) {
@@ -247,70 +241,80 @@ function pub(done) {
   });
 }
 
-gulp.task('compile-with-es', gulp.series(done => {
-  compile(false).on('finish', function () {
-    done();
-  });
-}));
 gulp.task(
-  'compile',
-  gulp.series('compile-with-es', done => {
-    compile().on('finish', function () {
+  'compile-with-es',
+  gulp.series(done => {
+    compile(false).on('finish', function() {
       done();
     });
   }),
 );
-gulp.task('dist', gulp.series('compile', done => {
-  dist(done);
-}));
-gulp.task('pub', gulp.series('check-git', 'compile', done => {
-  if (!process.env.GITHUB_TOKEN) {
-    console.log('no github token found;');
-  } else {
-    pub(done);
-  }
-}));
-gulp.task('pub-with-cli', gulp.series(done => {
-  if (!process.env.NPM_TOKEN) {
-    console.log('no npm token found;');
-  } else {
-    const github = new GitHub();
-    github.authenticate({
-      type: 'oauth',
-      token: process.env.GITHUB_TOKEN,
+gulp.task(
+  'compile',
+  gulp.series('compile-with-es', done => {
+    compile().on('finish', function() {
+      done();
     });
-    const [_, owner, repo] = execSync('git remote get-url origin') // eslint-disable-line
-      .toString()
-      .match(/github.com[:/](.+)\/(.+)\.git/);
-    const getLatestRelease = github.repos.getLatestRelease({
-      owner,
-      repo,
-    });
-    const listCommits = github.repos.listCommits({
-      owner,
-      repo,
-      per_page: 1,
-    });
-    Promise.all([getLatestRelease, listCommits]).then(([latestRelease, commits]) => {
-      const preVersion = latestRelease.data.tag_name;
-      const {
-        version,
-      } = packageJson;
-      const [_, newVersion] = commits.data[0].commit.message.trim().match(/bump (.+)/) || []; // eslint-disable-line
-      if (
-        compareVersions(version, preVersion) === 1 &&
-        newVersion &&
-        newVersion.trim() === version
-      ) {
-        runCmd('npm', ['run', 'pub'], code => {
-          done();
-        });
-      } else {
-        console.log('donot need publish' + version);
-      }
-    });
-  }
-}));
+  }),
+);
+gulp.task(
+  'dist',
+  gulp.series('compile', done => {
+    dist(done);
+  }),
+);
+gulp.task(
+  'pub',
+  gulp.series('check-git', 'compile', done => {
+    if (!process.env.GITHUB_TOKEN) {
+      console.log('no github token found;');
+    } else {
+      pub(done);
+    }
+  }),
+);
+gulp.task(
+  'pub-with-cli',
+  gulp.series(done => {
+    if (!process.env.NPM_TOKEN) {
+      console.log('no npm token found;');
+    } else {
+      const github = new GitHub();
+      github.authenticate({
+        type: 'oauth',
+        token: process.env.GITHUB_TOKEN,
+      });
+      const [_, owner, repo] = execSync('git remote get-url origin') // eslint-disable-line
+        .toString()
+        .match(/github.com[:/](.+)\/(.+)\.git/);
+      const getLatestRelease = github.repos.getLatestRelease({
+        owner,
+        repo,
+      });
+      const listCommits = github.repos.listCommits({
+        owner,
+        repo,
+        per_page: 1,
+      });
+      Promise.all([getLatestRelease, listCommits]).then(([latestRelease, commits]) => {
+        const preVersion = latestRelease.data.tag_name;
+        const { version } = packageJson;
+        const [_, newVersion] = commits.data[0].commit.message.trim().match(/bump (.+)/) || []; // eslint-disable-line
+        if (
+          compareVersions(version, preVersion) === 1 &&
+          newVersion &&
+          newVersion.trim() === version
+        ) {
+          runCmd('npm', ['run', 'pub'], code => {
+            done();
+          });
+        } else {
+          console.log('donot need publish' + version);
+        }
+      });
+    }
+  }),
+);
 gulp.task(
   'guard',
   gulp.series(done => {
