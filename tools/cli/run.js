@@ -4,7 +4,8 @@ require('colorful').colorful();
 const gulp = require('gulp');
 const program = require('commander');
 program.on('--help', () => {
-  console.log('Usage:'.to.blod.blue.color);
+  console.log('  Usage:'.to.blue.color);
+  console.log();
 });
 program.parse(process.argv);
 
@@ -12,6 +13,7 @@ function runTask(toRun) {
   const metaData = {
     task: toRun,
   };
+  const taskInstance = gulp.task(toRun);
   if (taskInstance == undefined) {
     gulp.emit('task_not_found', metaData);
     return;
@@ -20,12 +22,12 @@ function runTask(toRun) {
   gulp.emit('task_start', metaData);
   try {
     taskInstance.apply(gulp);
-    metadata.hrDuration = process.hrtime(start);
-    gulp.emit('task_stop', metadata);
+    metaData.hrDuration = process.hrtime(start);
+    gulp.emit('task_stop', metaData);
     gulp.emit('stop');
   } catch (err) {
     err.hrDuration = process.hrtime(start);
-    err.task = metadata.task;
+    err.task = metaData.task;
     gulp.emit('task_err', err);
   }
 }

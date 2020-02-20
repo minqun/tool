@@ -7,11 +7,13 @@
 
 
 
+
         {
             "type": "node",
             "request": "launch",
+            "args": ["compile"],
             "name": "启动程序",
-            "program": "${workspaceFolder}\\tools\\gulpfile.js"
+            "program": "${workspaceFolder}\\tools\\cli\\run.js"
         }
     ]
 }
